@@ -2,12 +2,39 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 5000;
+const cors = require('cors');
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/api/hello', (req, res) => {
-  res.send({ message: 'hello express!!' });
+app.get('/api/customers', (req, res) => {
+  res.send([
+    {
+      id: 1,
+      image: '../public/pic/fox.png',
+      name: '홍길동',
+      birthday: 19961212,
+      gender: '남자',
+      job: '대학생',
+    },
+    {
+      id: 2,
+      image: '../public/pic/fox.png',
+      name: '김춘식',
+      birthday: 19860815,
+      gender: '남자',
+      job: '프로그래머',
+    },
+    {
+      id: 3,
+      image: '../public/pic/fox.png',
+      name: '이예진',
+      birthday: 20040719,
+      gender: '여자',
+      job: '요리사',
+    },
+  ]);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

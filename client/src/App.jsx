@@ -10,12 +10,13 @@ import { makeStyles } from '@mui/styles';
 
 import './App.css';
 import Customer from './components/Customer';
+import { useEffect, useState } from 'react';
 
 const useStyles = makeStyles({
   //전체적용
   root: {
     width: '100%',
-    marginTop: '30px', //탑여백을 3의 가중치 만큼 준다?
+    marginTop: '30px',
     overflowX: 'auto',
   },
   table: {
@@ -23,35 +24,19 @@ const useStyles = makeStyles({
   },
 });
 
-const customers = [
-  {
-    id: 1,
-    image: '../public/pic/fox.png',
-    name: '홍길동',
-    birthday: 19961212,
-    gender: '남자',
-    job: '대학생',
-  },
-  {
-    id: 2,
-    image: '../public/pic/fox.png',
-    name: '김춘식',
-    birthday: 19860815,
-    gender: '남자',
-    job: '프로그래머',
-  },
-  {
-    id: 3,
-    image: '../public/pic/fox.png',
-    name: '이예진',
-    birthday: 20040719,
-    gender: '여자',
-    job: '요리사',
-  },
-];
-
 function App() {
   const classes = useStyles();
+  const [serverData, setServerData] = useState([]);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/customers`)
+      .then((res) => res.json())
+      .then((data) => {
+        setServerData(data);
+        console.log('data', serverData);
+      });
+  }, []);
+
   return (
     <Paper className={classes.root}>
       <Table className={classes.table}>
@@ -66,7 +51,7 @@ function App() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {customers.map((customer) => (
+          {serverData.map((customer) => (
             <Customer
               key={customer.id}
               id={customer.id}
