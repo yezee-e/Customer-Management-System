@@ -5,6 +5,7 @@ import {
   TableRow,
   TableCell,
   Paper, //스타일을 주기 위해 외부를 감싸는 역할
+  CircularProgress, //api 로딩처리 구현
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
@@ -27,43 +28,64 @@ const useStyles = makeStyles({
 function App() {
   const classes = useStyles();
   const [serverData, setServerData] = useState([]);
+  const [progress, setProgress] = useState(0); //api로딩처리 관리
 
-  useEffect(() => {
-    fetch(`http://localhost:5000/api/customers`)
+  const fetchData = async () => {
+    await fetch(`http://localhost:5000/api/customers`)
       .then((res) => res.json())
       .then((data) => {
         setServerData(data);
-        console.log('data', serverData);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
+    const timer = setInterval(() => {
+      setProgress((prevProgress) =>
+        prevProgress >= 100 ? 0 : prevProgress + 1
+      );
+    }, 100);
+
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
 
   return (
     <Paper className={classes.root}>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>번호</TableCell>
-            <TableCell>이미지</TableCell>
-            <TableCell>이름</TableCell>
-            <TableCell>생년월일</TableCell>
-            <TableCell>성별</TableCell>
-            <TableCell>직업</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {serverData.map((customer) => (
-            <Customer
-              key={customer.id}
-              id={customer.id}
-              image={customer.image}
-              name={customer.name}
-              birthday={customer.birthday}
-              gender={customer.gender}
-              job={customer.job}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      {serverData ? (
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>번호</TableCell>
+              <TableCell>이미지</TableCell>
+              <TableCell>이름</TableCell>
+              <TableCell>생년월일</TableCell>
+              <TableCell>성별</TableCell>
+              <TableCell>직업</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {serverData.map((customer) => (
+              <Customer
+                key={customer.id}
+                id={customer.id}
+                image={customer.image}
+                name={customer.name}
+                birthday={customer.birthday}
+                gender={customer.gender}
+                job={customer.job}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <TableRow>
+          <TableCell colSpan={6} align='center'>
+            <CircularProgress variant='determinate' value={progress} />
+          </TableCell>
+        </TableRow>
+      )}
     </Paper>
   );
 }
